@@ -2,93 +2,93 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <title></title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div id="budget">
-        <div>
-            <div id="budget-box">
-                <span>Initial Budget: </span>
-                <input type="number" id="budget-input">
-            </div>
-            <div>
-                <button type="button" onclick="budget.reset()">Reset</button>
-                <button type="button" onclick="budget.set()">Set</button>
-            </div>
-        </div>
-        <div>
-            <p>Initial Budget: <span id="initial-budget"></span></p>
-            <p>Total Expenses: <span id="total-expenses"></span></p>
-            <p>Remaining Budget: <span id="remaining-budget"></span></p>
-        </div>
+  <div id="budget">
+    <div>
+      <div id="budget-box">
+        <span>Initial Budget: </span>
+        <input type="number" id="budget-input">
+      </div>
+      <div>
+        <button type="button" onclick="budget.reset()">Reset</button>
+        <button type="button" onclick="budget.set()">Set</button>
+      </div>
     </div>
+    <div>
+      <p>Initial Budget: <span id="initial-budget"></span></p>
+      <p>Total Expenses: <span id="total-expenses"></span></p>
+      <p>Remaining Budget: <span id="remaining-budget"></span></p>
+    </div>
+  </div>
 
-    <div id="budget-table">
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <td onclick="budgetTable.changeColor(0)">Sports</td>
-                        <td onclick="budgetTable.changeColor(1)">Luxury</td>
-                        <td onclick="budgetTable.changeColor(2)">Food</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Tracksuit</td>
-                        <td>Sunglasses</td>
-                        <td>Apple</td>
-                    </tr>
-                    <tr>
-                        <td>Shoes</td>
-                        <td>Watch</td>
-                        <td>Cucumber</td>
-                    </tr>
-                    <tr>
-                        <td>Racket</td>
-                        <td>Necklace</td>
-                        <td>Chicken</td>
-                    </tr>
-                    <tr>
-                        <td>Tennis Ball</td>
-                        <td>Coffee</td>
-                        <td>Rice</td>
-                    </tr>
-                    <tr>
-                        <td>Other</td>
-                        <td>Other</td>
-                        <td>Other</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div>
-                <p>
-                    Rainbow Colors Palette
-                </p>
-                <div id="rainbow">
+  <div id="budget-table">
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <td onclick="budgetTable.changeColor(0)">Sports</td>
+            <td onclick="budgetTable.changeColor(1)">Luxury</td>
+            <td onclick="budgetTable.changeColor(2)">Food</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tracksuit</td>
+            <td>Sunglasses</td>
+            <td>Apple</td>
+          </tr>
+          <tr>
+            <td>Shoes</td>
+            <td>Watch</td>
+            <td>Cucumber</td>
+          </tr>
+          <tr>
+            <td>Racket</td>
+            <td>Necklace</td>
+            <td>Chicken</td>
+          </tr>
+          <tr>
+            <td>Tennis Ball</td>
+            <td>Coffee</td>
+            <td>Rice</td>
+          </tr>
+          <tr>
+            <td onclick="budgetTable.spend('Other',0)">Other</td>
+            <td onclick="budgetTable.spend('Other',1)">Other</td>
+            <td onclick="budgetTable.spend('Other',2)">Other</td>
+          </tr>
+        </tbody>
+      </table>
+      <div>
+        <p>
+          Rainbow Colors Palette
+        </p>
+        <div id="rainbow">
 
-                </div>
-            </div>
         </div>
-        <div class="clear-both"></div>
-        <div>
-            <span>Prica-tag (Other):</span>
-            <input type="number" id="other-input">
-        </div>
-        <div>
-            <button type="button" onclick="budgetTable.change(-1)">-</button>
-            <input type="number" id="count-input">
-            <button type="button" onclick="budgetTable.change(1)">+</button>
-        </div>
+      </div>
     </div>
     <div class="clear-both"></div>
-    <svg></svg>
+    <div>
+      <span>Prica-tag (Other):</span>
+      <input type="number" id="other-input">
+    </div>
+    <div>
+      <button type="button" onclick="budgetTable.change(-1)">-</button>
+      <input type="number" id="count-input">
+      <button type="button" onclick="budgetTable.change(1)">+</button>
+    </div>
+  </div>
+  <div class="clear-both"></div>
+  <svg></svg>
 
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="main.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="main.js"></script>
 </body>
 
 </html>

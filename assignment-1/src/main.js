@@ -31,6 +31,7 @@ var budget = (function() {
         var remaining = this.initial - this.expenses;
         var remainingColor = remaining >= 0 ? "black" : "red";
         d3.select("#remaining-budget").style("color", remainingColor).text(remaining);
+        if (chart) chart.render();
     };
 
     Budget.prototype.set = function() {
@@ -43,6 +44,7 @@ var budget = (function() {
     Budget.prototype.reset = function() {
         this.initial = 0;
         this.expenses = 0;
+        this.expenseCategority = [0, 0, 0];
         this.render();
     };
 
@@ -50,7 +52,6 @@ var budget = (function() {
         this.expenses += x;
         this.expenseCategority[categority] += x;
         this.render();
-        chart.render();
     };
 
     var budget = new Budget();
@@ -86,17 +87,19 @@ var budgetTable = (function() {
         this.render();
     };
 
-    BudgetTable.prototype.spend = function(itemName, categority) {
+    BudgetTable.prototype.spend = function(itemName, ctg) {
         var expendData;
+        var categority;
         if (itemName == "Other") {
             var input = document.getElementById("other-input")
             expend = input.value;
             input.value = 0;
-            categority = categority;
+            categority = ctg;
         } else {
             expend = data[itemName][0];
             categority = data[itemName][1];
         }
+        this.change(0);
         budget.spend(expend * this.count, categority);
     }
 
@@ -105,9 +108,10 @@ var budgetTable = (function() {
 
     d3.select("tbody").selectAll("td").each(function() {
         var el = d3.select(this);
-        el.on("click", function() {
-            budgetTable.spend(el.text())
-        });
+        if (el.text() != "Other")
+            el.on("click", function() {
+                budgetTable.spend(el.text());
+            });
     });
 
     d3.select("#rainbow").selectAll("div").data(rainbowColors)
@@ -125,12 +129,10 @@ var budgetTable = (function() {
 })();
 var chart = (function() {
 
-    var width = 500,
+    var width = 650,
         height = 500;
 
     function BarChart() {
-        this.yScaler = d3.scaleLinear().range([0, height - 60]);
-
         this.svg = d3.select("svg")
             .attr("width", width)
             .attr("height", height);
@@ -138,39 +140,50 @@ var chart = (function() {
 
     BarChart.prototype.render = function() {
         var that = this;
-        var expenses = budget.expenseCategority;
-        var percentage = [1, 2, 3];
+
+        var percentage = [0, 0, 0];
+
+        this.svg.selectAll("*").remove();
+
+        var e = d3.sum(budget.expenseCategority);
+
+        if (e == 0) return;
+
+        for (var i = 0; i < budget.expenseCategority.length; i++) {
+            percentage[i] = budget.expenseCategority[i] / e;
+        }
+
         var xScale = [50, 250, 450];
 
-        this.yScaler.domain([0, d3.max(expenses)]);
-        var data = d3.zip(expenses, xScale);
+        var data = d3.zip(percentage, xScale);
 
         this.svg.selectAll("rect").data(data)
             .enter()
             .append("rect")
             .attr("y", function(d) {
-                return height - 30 - that.yScaler(d[0]);
+                return height - 30 - ((height - 60) * d[0]);
             })
             .attr("x", function(d) {
                 return d[1];
             })
             .attr("height", function(d) {
-                return that.yScaler(d[0]);
+                return ((height - 60) * d[0]);
             })
             .attr("width", 50);
 
         this.svg.append("g").selectAll("text")
-            .data(d3.zip(data, percentage))
+            .data(data)
             .enter()
             .append("text")
-            .attr("y", function(d) {
-                return height - that.yScaler(d[0][0]) - 40;
-            })
             .attr("x", function(d) {
-                return d[0][1] + 15;
+                return d[1] + 10;
+            })
+            .transition(100)
+            .attr("y", function(d) {
+                return height - 40 - ((height - 60) * d[0]);
             })
             .text(function(d) {
-                return d[1];
+                return parseInt(100 * d[0]) + " %";
             });
 
         this.svg.append("g").selectAll("text")
