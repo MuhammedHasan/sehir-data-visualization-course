@@ -1,0 +1,15 @@
+#currency, #scaler {
+    float: left;
+    margin-bottom: 40px;
+}
+#currency {
+    margin: 0 200px 0 200px;
+    display: block;
+}
+#scaler {
+    margin-top: 20px;
+}
+svg {
+    display: block;
+    clear: both;
+}
