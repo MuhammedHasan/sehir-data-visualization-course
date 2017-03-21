@@ -1,0 +1,4 @@
+*.js
+!/assignment-1/**/*.js
+/**/node_modules
+*.zip
