@@ -13,3 +13,13 @@ svg {
     display: block;
     clear: both;
 }
+rect{
+  fill:#1976D2;
+}
+text{
+  fill:black;
+}
+line{
+  stroke:black;
+  stroke-width:2;
+}

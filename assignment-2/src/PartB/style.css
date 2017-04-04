@@ -1,64 +1,9 @@
-#budget {
-    overflow: hidden;
+#scatter  circle {
+    fill-opacity: 0.7;
 }
-
-#budget>div {
-    float: left;
-    display: inline;
-    margin: 30px;
+div{
+  display: inline;
 }
-
-#budget button:last-child {
-    margin-left: 45px;
-}
-
-#budget>div:first-child {
-    margin-top: 40px;
-}
-
-#budget-box {
-    margin-bottom: 20px;
-}
-
-#budget-table>div {
-    display: inline;
-}
-
-#budget-table>div>div {
-    float: left;
-    padding: 200px 0 0 25px;
-}
-
-#budget-table>div:last-child {
-    padding-left: 30px;
-}
-
-#count-input {
-    width: 50px;
-}
-svg{
-  margin-top: 50px;
-}
-table {
-    margin-bottom: 30px;
-    float: left;
-}
-
-thead {
-    background-color: rgb(175, 175, 175);
-}
-
-td {
-    padding: 20px;
-    text-align: center;
-}
-
-.clear-both {
-    display: block !important;
-    clear: both;
-}
-.rainbow-item{
-  display: inline-block;
-  height: 100px;
-  width: 50px;
+#scatter{
+  margin-right: 100px;
 }
