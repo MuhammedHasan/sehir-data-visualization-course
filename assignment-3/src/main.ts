@@ -1,17 +1,16 @@
 /// <reference path="../node_modules/@types/d3/index.d.ts"/>
 
-interface Country {
-  name: string;
-  gdp: number;
-  population: number;
-}
-
-class CountriesScatter {
+class CountriesPie {
 
   padding = 50;
   height = 500;
   width = 500;
   data;
+  pie = d3.pie();
+  outherRadius = 100;
+  arc = d3.arc().innerRadius(0).outerRadius(this.outherRadius);
+  svg = d3.select('svg').attr('height', this.height).attr('width', this.width);
+  color = d3.scaleOrdinal(d3.schemeCategory10);
 
   populationScaler;
   gdpScaler;
@@ -20,6 +19,14 @@ class CountriesScatter {
   viewInit() {
     this.loadData((data) => {
       let europe = data['Europe'];
+      this.svg.append("g")
+        .attr("transform", "translate(" + this.outherRadius + ", " + this.outherRadius + ")")
+        .selectAll("path")
+        .data(this.pie(europe.map(x => x[1])))
+        .enter()
+        .append("path")
+        .attr("d", (d: any) => this.arc(d))
+        .attr("fill", (d, i: any) => this.color(i))
       console.log(europe);
     });
   }
@@ -45,5 +52,5 @@ class CountriesScatter {
 
 }
 
-let scatter = new CountriesScatter();
-scatter.viewInit();
+let pie = new CountriesPie();
+pie.viewInit();
