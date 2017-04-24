@@ -1,0 +1,13 @@
+select {
+    margin: 25px 0 50px 250px;
+}
+#contries-checkbox-group, #pie {
+    float: left;
+    margin-left: 50px;
+}
+.countries-checkbox {
+    margin-top: 20px;
+}
+.hidden {
+    display: none;
+}
