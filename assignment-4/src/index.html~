@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="visualization-options">
+      <div>
+	<form>
+	  <b> Layout: </b> 
+	  <input type="radio" name="layout" value="radial"/>
+	  Radial
+	  <input type="radio" name="layout" value="tree" checked/>
+	  Tree
+	</form>
+      </div>
+      <div>
+	<form>
+	  <b> Color: </b> 
+	  <input type="radio" name="colors" value="none"/>
+	  None
+	  <input type="radio" name="colors" value="continent" checked/>
+	  Continent
+	</form>
+      </div>
+      <div>
+	<form>
+	  <b> Sort By: </b>
+	  <input type="radio" name="sort-by" value="population"/>
+	  Population
+	  <input type="radio" name="sort-by" value="gdp"/>
+	  GDP
+	  <input type="radio" name="sort-by" value="continent" checked/>
+	  Continent
+	</form>
+      </div>
+    </div>
+    <div id="visualization">
+      <svg></svg>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.7.3/d3.js"></script>
+    <script src="main.js" charset="utf-8"></script>
+  </body>
+
+</html>

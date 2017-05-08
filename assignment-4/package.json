@@ -1,0 +1,19 @@
+{
+  "name": "playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "d3": "^4.7.3"
+  },
+  "devDependencies": {
+    "@types/d3": "^4.7.0",
+    "@types/d3-selection": "^1.0.12",
+    "typescript": "^2.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

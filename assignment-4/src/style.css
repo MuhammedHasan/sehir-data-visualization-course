@@ -1,0 +1,16 @@
+#visualization-options > div {
+    margin:10px;
+}
+
+#tooltip {
+    position: absolute;
+    background-color: black;
+    color: white;
+    padding: 10px;
+    height: 70px;
+    
+}
+.hidden {
+    display: none;
+}
+
