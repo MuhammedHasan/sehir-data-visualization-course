@@ -21,13 +21,11 @@ class MainComponent {
         if (!(d.continent in data)) data[d.continent] = [];
         data[d.continent].push({
           'name': d.name,
-          'gdp': d.years.filter(x => x.year >= 2000).map(x => [x.year, x.gdp]),
+          'gdpByYears': d.years.filter(x => x.year >= 2000).map(x => [x.year, x.gdp]),
+          'gdp': d.years.filter(x => x.year == 2012)[0].gdp,
           'population': d.years.filter(y => y.year == 2012)[0].population
         });
       });
-
-      //for (let continent in data)
-      //data[continent] = data[continent].sort((x, y) => y[1] - x[1]).slice(0, 10);
 
       callback(data);
     });
@@ -112,29 +110,46 @@ class VisualizationComponent {
       .data(nodes)
       .enter()
       .append("circle")
-      .attr("r", 10)
-      .attr('class', d => d.parent && d.parent.parent ? d.parent.data.name : '')
+      .attr('class', d => this.isCountryNode(d) ? d.parent.data.name : '')
       .classed('World', d => d.parent)
-      .on('click', d => !(d.parent && d.parent.parent) ? this.collapse(d) : '')
-      .on("mouseover", (d) => tooltip.show(d.data.population, d.data.gdp[d.data.gdp.length - 1][1]))
-      .on("mouseout", (d) => tooltip.hide());
+      .on('click', d => !(this.isCountryNode(d)) ? this.collapse(d) : graphTooltop.show(d.data.gdpByYears))
+      .on("mouseover", (d) => tooltip.show(d.data.population, d.data.gdp))
+      .on("mouseout", (d) => {
+        tooltip.hide();
+        graphTooltop.hide();
+      });
 
     this.texts = this.el.selectAll("text")
       .data(nodes)
       .enter()
       .append("text")
-      .attr('class', d => d.parent && d.parent.parent ? d.parent.data.name : '')
+      .attr('class', d => this.isCountryNode(d) ? d.parent.data.name : '')
       .classed('World', d => d.parent)
       .text(d => d.data.name);
   }
 
+  isCountryNode(d) {
+    return d.parent && d.parent.parent;
+  }
+
   hierarchicalData() {
-    let root = {
+    let root: any = {
       name: 'World',
       children: Object.keys(this.data)
-        .map(x => ({ 'name': x, children: this.data[x] }))
+        .map(x => ({
+          name: x,
+          children: this.data[x],
+          gdp: this.totalProp(this.data[x], 'gdp'),
+          population: this.totalProp(this.data[x], 'population')
+        }))
     };
+    root.gdp = this.totalProp(root.children, 'gdp');
+    root.population = this.totalProp(root.children, 'population');
     return d3.hierarchy(root);
+  }
+
+  totalProp(nodeChildren, prop) {
+    return d3.sum(nodeChildren.map(x => x[prop]));
   }
 
   diagonal(d) {
@@ -151,11 +166,19 @@ class VisualizationComponent {
 
   render() {
     if (this.options.colors == "continent") this.circles.style("fill",
-      (d) => d.parent && d.parent.parent ? this.colors(d.parent.data.name) : this.colors(d.data.name));
+      (d) => this.isCountryNode(d) ? this.colors(d.parent.data.name) : this.colors(d.data.name));
     else this.circles.style('fill', '#5b5b5b');
 
     this.circles
       .transition()
+      .attr("r", d => {
+        if (this.isCountryNode(d))
+          return Math.log(d.data.gdp / Math.pow(10, 9));
+        else if (d.hidden)
+          return Math.log(d.data.gdp / Math.pow(10, 9)) * 10;
+        else
+          return 10;
+      })
       .attr("cx", (d) => this.project(d.x, d.y)[0])
       .attr("cy", (d) => this.project(d.x, d.y)[1]);
 
@@ -187,8 +210,11 @@ class VisualizationComponent {
     }
     else {
       node.hidden = true;
+      if (!node.parent)
+        node.children.forEach(x => x.hidden = false);
       d3.selectAll(`.${node.data.name}`).attr('display', 'none');
     }
+    this.render();
   }
 }
 
@@ -196,8 +222,8 @@ class Tooltip {
   el = d3.select('#tooltip');
 
   show(population, gdp) {
-    this.el.select('#population').text(population);
-    this.el.select('#gdp').text(gdp);
+    this.el.select('#population').text(population ? population.toLocaleString() : '');
+    this.el.select('#gdp').text(gdp ? gdp.toLocaleString() : '');
     this.el.classed('hidden', false);
     this.el.style("top", `${d3.event.pageY - 10}px`).style("left", `${d3.event.pageX + 10}px`)
   }
@@ -207,7 +233,71 @@ class Tooltip {
   }
 }
 
+class GraphTooltip {
+
+  data = [[1, 10], [2, 20], [4, 300]];
+  el = d3.select('#graph-tooltip');
+
+  width = 350;
+  height = 150;
+
+  x = d3.scaleLinear().range([0, this.width]);
+  y = d3.scaleLinear().range([this.height, 0]);
+
+  line = d3.line()
+    .x((d) => this.x(d[0]))
+    .y((d) => this.y(d[1]));
+
+  path;
+
+  axisBottom;
+  axisLeft;
+
+  viewInit() {
+    let vis = this.el.append('svg')
+      .attr("width", this.width + 180)
+      .attr("height", this.height + 80)
+      .append('g')
+      .attr('transform', 'translate(120, 30)');
+
+    this.path = vis.append("path")
+      .attr("class", "line");
+
+    this.axisBottom = vis.append("g").attr('id', 'axisBottom')
+      .attr("transform", `translate(0, ${this.height})`);
+    this.axisLeft = vis.append("g").attr('id', 'axisLeft');
+  }
+
+  show(gdpByYears) {
+    tooltip.hide();
+    this.el.classed('hidden', false);
+    this.data = gdpByYears;
+    this.render();
+    this.el.style("top", `${d3.event.pageY - 10}px`).style("left", `${d3.event.pageX + 10 - this.width}px`)
+  }
+
+  hide() {
+    this.el.classed('hidden', true);
+  }
+
+  render() {
+    this.x.domain([d3.min(this.data, (d) => d[0]), d3.max(this.data, (d) => d[0])]);
+    this.y.domain([d3.min(this.data, (d) => d[1]), d3.max(this.data, (d) => d[1])]);
+
+    this.path.data([this.data])
+      .attr("d", (d) => this.line(<any>d));
+
+    this.axisBottom.call(d3.axisBottom(this.x));
+    this.axisLeft.call(d3.axisLeft(this.y));
+  }
+
+}
+
 let tooltip = new Tooltip();
+
+let graphTooltop = new GraphTooltip();
+graphTooltop.viewInit();
+graphTooltop.render();
 
 let main = new MainComponent();
 main.viewInit();

@@ -14,3 +14,13 @@
     display: none;
 }
 
+#graph-tooltip{
+    background-color: yellow;
+    position:absolute;
+}
+
+#graph-tooltip .line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 2px;
+}
