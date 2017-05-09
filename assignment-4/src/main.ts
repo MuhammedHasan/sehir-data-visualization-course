@@ -77,6 +77,8 @@ class VisualizationComponent {
   circles;
   texts;
 
+  hiddens = {};
+
   constructor(el, data) {
     this.el = d3.select(el);
     this.data = data;
@@ -92,13 +94,9 @@ class VisualizationComponent {
       .attr("height", this.height)
       .append("g");
 
-    let root = this.hierarchicalData();
-    let nodes = this.tree(root).descendants();
-    let links = this.tree(root).links();
+    this.bindData();
 
-    this.lines = this.el.selectAll("line")
-      .data(links)
-      .enter()
+    this.lines = this.lines.enter()
       .append("path")
       .attr('class', d => d.target.parent && d.target.parent.parent ? d.target.parent.data.name : '')
       .classed('World', d => d.target.parent)
@@ -106,9 +104,7 @@ class VisualizationComponent {
       .style("stroke-width", 1.5)
       .style("fill", "none");
 
-    this.circles = this.el.selectAll("circle")
-      .data(nodes)
-      .enter()
+    this.circles = this.circles.enter()
       .append("circle")
       .attr('class', d => this.isCountryNode(d) ? d.parent.data.name : '')
       .classed('World', d => d.parent)
@@ -119,17 +115,31 @@ class VisualizationComponent {
         graphTooltop.hide();
       });
 
-    this.texts = this.el.selectAll("text")
-      .data(nodes)
-      .enter()
+    this.texts = this.texts.enter()
       .append("text")
       .attr('class', d => this.isCountryNode(d) ? d.parent.data.name : '')
-      .classed('World', d => d.parent)
-      .text(d => d.data.name);
+      .classed('World', d => d.parent);
+  }
+
+  bindData() {
+    let root = this.hierarchicalData();
+    let nodes = this.tree(root).descendants();
+    let links = this.tree(root).links();
+
+    this.lines = this.el.selectAll("path").data(links);
+    this.circles = this.el.selectAll("circle").data(nodes);
+    this.texts = this.el.selectAll("text").data(nodes);
   }
 
   isCountryNode(d) {
     return d.parent && d.parent.parent;
+  }
+
+  sortBy(gdpOrPopulation) {
+    if (gdpOrPopulation == 'continent') return;
+    Object.keys(this.data).forEach(k =>
+      this.data[k] = this.data[k].sort((x, y) => d3.ascending(x[gdpOrPopulation], y[gdpOrPopulation])));
+    this.bindData();
   }
 
   hierarchicalData() {
@@ -169,13 +179,15 @@ class VisualizationComponent {
       (d) => this.isCountryNode(d) ? this.colors(d.parent.data.name) : this.colors(d.data.name));
     else this.circles.style('fill', '#5b5b5b');
 
+    this.sortBy(this.options.sortBy);
+
     this.circles
       .transition()
       .attr("r", d => {
         if (this.isCountryNode(d))
-          return Math.log(d.data.gdp / Math.pow(10, 9));
-        else if (d.hidden)
-          return Math.log(d.data.gdp / Math.pow(10, 9)) * 10;
+          return Math.log(d.data.gdp / Math.pow(10, 9) + 1);
+        else if (this.hiddens[d.data.name])
+          return Math.log(d.data.gdp / Math.pow(10, 9) + 1) * 10;
         else
           return 10;
       })
@@ -184,7 +196,8 @@ class VisualizationComponent {
 
     this.texts
       .attr("x", (d) => this.project(d.x, d.y)[0] + 10)
-      .attr("y", (d) => this.project(d.x, d.y)[1] + 5);
+      .attr("y", (d) => this.project(d.x, d.y)[1] + 5)
+      .text(d => d.data.name);
 
     this.lines.attr("d", (d) => this.diagonal(d));
 
@@ -204,14 +217,14 @@ class VisualizationComponent {
   }
 
   collapse(node) {
-    if (node.hidden) {
-      node.hidden = false;
+    if (this.hiddens[node.data.name]) {
+      this.hiddens[node.data.name] = false;
       d3.selectAll(`.${node.data.name}`).attr('display', 'block');
     }
     else {
-      node.hidden = true;
+      this.hiddens[node.data.name] = true;
       if (!node.parent)
-        node.children.forEach(x => x.hidden = false);
+        node.children.forEach(x => this.hiddens[x.data.name] = false);
       d3.selectAll(`.${node.data.name}`).attr('display', 'none');
     }
     this.render();
